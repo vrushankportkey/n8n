@@ -361,11 +361,7 @@ export class ProjectService {
 	}
 
 	async addUser(projectId: string, userId: string, role: ProjectRole) {
-		return await this.projectRelationRepository.save({
-			projectId,
-			userId,
-			role,
-		});
+		return await this.addUsersToProject(projectId, [{ userId, role }]);
 	}
 
 	async getProject(projectId: string): Promise<Project> {
