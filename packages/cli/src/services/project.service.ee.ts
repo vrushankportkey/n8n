@@ -24,6 +24,8 @@ import { License } from '@/license';
 
 import { CacheService } from './cache/cache.service';
 
+type Relation = { userId: string; role: ProjectRole };
+
 export class TeamProjectOverQuotaError extends UserError {
 	constructor(limit: number) {
 		super(
@@ -206,7 +208,7 @@ export class ProjectService {
 		);
 
 		// Link admin
-		await this.addUser(project.id, adminUser.id, 'project:admin');
+		await this.addUser(project.id, { userId: adminUser.id, role: 'project:admin' });
 
 		return project;
 	}
@@ -246,9 +248,23 @@ export class ProjectService {
 		await this.clearCredentialCanUseExternalSecretsCache(projectId);
 	}
 
-	async addUsersToProject(projectId: string, relations: Required<UpdateProjectDto>['relations']) {
+	/**
+	 * Adds users to a team project with specified roles.
+	 *
+	 * Throws if you the project is a personal project.
+	 * Throws if the relations contain `project:personalOwner`.
+	 */
+	async addUsersToProject(projectId: string, relations: Relation[]) {
 		const project = await this.getTeamProjectWithRelations(projectId);
 		this.checkRolesLicensed(project, relations);
+
+		if (project.type === 'personal') {
+			throw new ForbiddenError("Can't add users to personal projects.");
+		}
+
+		if (relations.some((r) => r.role === 'project:personalOwner')) {
+			throw new ForbiddenError("Can't add a personalOwner to a team project.");
+		}
 
 		await this.projectRelationRepository.save(
 			relations.map((relation) => ({ projectId, ...relation })),
@@ -265,7 +281,7 @@ export class ProjectService {
 	}
 
 	/** Check to see if the instance is licensed to use all roles provided */
-	private checkRolesLicensed(project: Project, relations: Required<UpdateProjectDto>['relations']) {
+	private checkRolesLicensed(project: Project, relations: Relation[]) {
 		for (const { role, userId } of relations) {
 			const existing = project.projectRelations.find((pr) => pr.userId === userId);
 			// We don't throw an error if the user already exists with that role so
@@ -360,8 +376,14 @@ export class ProjectService {
 		});
 	}
 
-	async addUser(projectId: string, userId: string, role: ProjectRole) {
-		return await this.addUsersToProject(projectId, [{ userId, role }]);
+	/**
+	 * Add a user to a team project with specified roles.
+	 *
+	 * Throws if you the project is a personal project.
+	 * Throws if the relations contain `project:personalOwner`.
+	 */
+	async addUser(projectId: string, relation: Relation) {
+		return await this.addUsersToProject(projectId, [relation]);
 	}
 
 	async getProject(projectId: string): Promise<Project> {
