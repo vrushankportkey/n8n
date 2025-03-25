@@ -19,6 +19,14 @@ describe('Undo/Redo', () => {
 		WorkflowPage.actions.visit();
 	});
 
+	it('should undo/redo adding nodes', () => {
+		WorkflowPage.actions.addNodeToCanvas(SCHEDULE_TRIGGER_NODE_NAME);
+		WorkflowPage.actions.hitUndo();
+		WorkflowPage.getters.canvasNodes().should('have.have.length', 0);
+		WorkflowPage.actions.hitRedo();
+		WorkflowPage.getters.canvasNodes().should('have.have.length', 1);
+	});
+
 	it('should undo/redo deleting node using context menu', () => {
 		WorkflowPage.actions.addNodeToCanvas(SCHEDULE_TRIGGER_NODE_NAME);
 		WorkflowPage.actions.addNodeToCanvas(CODE_NODE_NAME);
