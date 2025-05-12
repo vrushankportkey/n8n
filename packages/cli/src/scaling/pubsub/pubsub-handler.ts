@@ -6,7 +6,6 @@ import { EventService } from '@/events/event.service';
 import type { PubSubEventMap } from '@/events/maps/pub-sub.event-map';
 import { Push } from '@/push';
 import { assertNever } from '@/utils';
-import { TestWebhooks } from '@/webhooks/test-webhooks';
 
 import type { PubSub } from './pubsub.types';
 
@@ -20,7 +19,6 @@ export class PubSubHandler {
 		private readonly eventService: EventService,
 		private readonly instanceSettings: InstanceSettings,
 		private readonly push: Push,
-		private readonly testWebhooks: TestWebhooks,
 	) {}
 
 	init() {
