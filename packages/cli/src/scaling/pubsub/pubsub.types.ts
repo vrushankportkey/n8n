@@ -109,29 +109,12 @@ export namespace PubSub {
 	//              events
 	// ----------------------------------
 
-	/**
-	 * Of all events emitted from pubsub messages, those whose handlers
-	 * are all present in main, worker, and webhook processes.
-	 */
-	export type CommonEvents = Pick<
-		PubSubEventMap,
-		| 'reload-license'
-		| 'restart-event-bus'
-		| 'reload-external-secrets-providers'
-		| 'community-package-install'
-		| 'community-package-update'
-		| 'community-package-uninstall'
-	>;
-
 	/** Multi-main events emitted from pubsub messages. */
 	export type MultiMainEvents = Pick<
 		PubSubEventMap,
-		| 'add-webhooks-triggers-and-pollers'
-		| 'remove-triggers-and-pollers'
 		| 'display-workflow-activation'
 		| 'display-workflow-deactivation'
 		| 'display-workflow-activation-error'
 		| 'relay-execution-lifecycle-event'
-		| 'clear-test-webhooks'
 	>;
 }
