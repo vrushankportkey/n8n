@@ -150,7 +150,6 @@ function onActivate() {
 		<NodeIcon :icon-source="iconSource" :size="iconSize" :shrink="false" :disabled="isDisabled" />
 		<CanvasNodeSettingsIcons
 			v-if="!isDisabled && !(hasPinnedData && !nodeHelpers.isProductionExecutionPreview.value)"
-			:class="$style.settingsIcons"
 		/>
 		<CanvasNodeStatusIcons v-if="!isDisabled" :class="$style.statusIcons" />
 		<CanvasNodeDisabledStrikeThrough v-if="isStrikethroughVisible" />
@@ -347,10 +346,5 @@ function onActivate() {
 	right: var(--canvas-node--status-icons-offset);
 }
 .settingsIcons {
-	position: absolute;
-	bottom: var(--canvas-node--status-icons-offset);
-	left: var(--canvas-node--status-icons-offset);
-	display: flex;
-	gap: var(--spacing-4xs);
 }
 </style>
