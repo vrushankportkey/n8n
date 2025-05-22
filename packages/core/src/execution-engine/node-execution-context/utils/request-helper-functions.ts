@@ -20,6 +20,7 @@ import crypto, { createHmac } from 'crypto';
 import FormData from 'form-data';
 import { IncomingMessage } from 'http';
 import { Agent, type AgentOptions } from 'https';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
@@ -526,6 +527,11 @@ export async function parseRequestObject(requestObject: IRequestOptions) {
 				const url = new URL(requestObject.proxy);
 				// eslint-disable-next-line @typescript-eslint/no-shadow
 				const host = url.hostname.startsWith('[') ? url.hostname.slice(1, -1) : url.hostname;
+				const isHttpsRequest = requestObject.url?.startsWith('https://');
+				if (isHttpsRequest) {
+					axiosConfig.proxy = false;
+					axiosConfig.httpsAgent = new HttpsProxyAgent(requestObject.proxy);
+				}
 				axiosConfig.proxy = {
 					host,
 					port: parseInt(url.port, 10),

@@ -292,7 +292,6 @@ export class HttpRequestV3 implements INodeType {
 				if (response?.response?.neverError) {
 					requestOptions.simple = false;
 				}
-
 				if (proxy) {
 					requestOptions.proxy = proxy;
 				}
