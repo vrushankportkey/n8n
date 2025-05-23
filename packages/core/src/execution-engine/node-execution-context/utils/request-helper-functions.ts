@@ -135,9 +135,14 @@ const getBeforeRedirectFn =
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			servername: redirectedRequest.hostname,
 		});
-		redirectedRequest.agent = redirectAgent;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		redirectedRequest.agents.https = redirectAgent;
+		if (axiosConfig.proxy) {
+			redirectedRequest.agent = redirectAgent;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			redirectedRequest.agents.https = redirectAgent;
+		} else {
+			redirectedRequest.agent = '';
+			redirectedRequest.agents.https = '';
+		}
 
 		if (axiosConfig.headers?.Authorization) {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
